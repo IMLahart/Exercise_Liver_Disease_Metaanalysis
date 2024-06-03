@@ -1,0 +1,170 @@
+---
+title: "Exercise_Liver_Disease_MA_Human"
+author: "IM Lahart"
+date: "`r format(Sys.Date(),'%e de %B, %Y')`"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+    includes:
+      in_header: 
+      - !expr system.file("includes/fig-valign.tex", package = "summarytools")
+    toc: yes
+    toc_depth: 3
+---
+<style>
+body{
+  font-size: 8pt;
+}
+</style>
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages
+
+Packages required:
+1) dmetar
+2) tidyverse
+3) meta
+4) metafor
+5) metasens
+6) esc
+
+```{r install and load dmetar, include=FALSE}
+if (!require("devtools")) {
+  install.packages("devtools")
+}
+devtools::install_github("MathiasHarrer/dmetar")
+library(dmetar)
+```
+
+```{r packages, include=FALSE}
+#Install tidyverse package if needed for 'glimpse'
+if(!require(tidyverse)){install.packages('tidyverse')}
+#Load tidyverse package
+library(tidyverse)
+
+#Install meta package if needed for meta-analysis
+if(!require(meta)){install.packages('meta')}
+#Load meta package
+library(meta)
+
+#Install metafor package if needed for meta-analysis
+if(!require(metafor)){install.packages('metafor')}
+#Load metfor package
+library(metafor)
+
+#Install dmetar package if needed for meta-analysis
+if(!require(dmetar)){install.packages('dmetar')}
+#Load metfor package
+library(dmetar)
+```
+
+## Meta-analysis: AST
+
+```{r Read in AST data, include=FALSE}
+Liver_disease_AST <- read.csv("Ex_LD_AST.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r AST meta-analysis}
+m.AST <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_AST,
+                   sm = "MD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on AST")
+
+m.AST <- update(m.AST, prediction = TRUE) # Adds the prediction interval
+
+summary(m.AST) # Results of meta-analysis
+```
+
+```{r Outlier search AST}
+find.outliers(m.AST) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases AST}
+m.AST.inf <- InfluenceAnalysis(m.AST, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots AST}
+plot(m.AST.inf, "baujat")
+plot(m.AST.inf, "influence")
+plot(m.AST.inf, "es")
+plot(m.AST.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot AST}
+m.rma_AST <- rma(yi = m.AST$TE,
+             sei = m.AST$seTE,
+             method = m.AST$method.tau,
+             test = "knha")
+
+res.gosh_AST <- gosh(m.rma_AST)
+
+plot(res.gosh_AST, alpha = 0.01)
+
+res.gosh.diag_AST <- gosh.diagnostics(res.gosh_AST, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_AST)
+```
+
+```{r Update analysis if necessary}
+# update(m.AST, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot AST}
+meta::forest(m.AST, layout = "RevMan5")
+```
+
+```{r Saving forest plot AST}
+pdf(file = "forestplot.pdf", width = 8, height = 7)
+
+meta::forest(m.AST, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.AST, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
