@@ -1,6 +1,6 @@
 ---
 title: "Exercise_Liver_Disease_MA_Human"
-author: "IM Lahart"
+author: "Ian M Lahart & Edward Stanhope"
 date: "`r format(Sys.Date(),'%e de %B, %Y')`"
 output: 
   pdf_document:
