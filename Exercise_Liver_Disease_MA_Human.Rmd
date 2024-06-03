@@ -165,4 +165,62 @@ forest(Disease_subg,
             layout = "Revman")
 ```
 
+### Meta-regression
+
+```{r Metaregression AST}
+m.AST.reg <- metareg(m.AST, ~Age)
+m.AST.reg
+```
+
+
+```{r Bubble plot AST}
+bubble(m.AST.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot AST}
+meta::funnel(m.AST,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (AST)")
+```
+
+```{r Contour funnel plot AST}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.AST, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (AST)")
+```
+
+```{r Egger's regression test}
+metabias(m.AST, method.bias = "linreg")
+
+# Alternative:
+m.AST$n.e = n1; m.AST$n.c = n2
+metabias(m.AST, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.AST_update <- update(m.AST, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.AST_update)
+```
+
+
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
