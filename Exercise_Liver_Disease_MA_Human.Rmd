@@ -29,8 +29,6 @@ Packages required:
 2) tidyverse
 3) meta
 4) metafor
-5) metasens
-6) esc
 
 ```{r install and load dmetar, include=FALSE}
 if (!require("devtools")) {
