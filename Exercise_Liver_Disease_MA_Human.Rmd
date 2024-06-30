@@ -63,7 +63,7 @@ library(dmetar)
 ## Meta-analysis: AST
 
 ```{r Read in AST data, include=FALSE}
-Liver_disease_AST <- read.csv("MA_human_AST.csv", 
+LD_AST <- read.csv("Liver_MA_AST.csv", 
                       header = TRUE, sep = ",")
 ```
 
@@ -75,12 +75,12 @@ m.AST <- metacont(n.e = n.e,
                    mean.c = mean.c,
                    sd.c = sd.c,
                    studlab = author,
-                   data = Liver_disease_AST,
-                   sm = "MD",
+                   data = LD_AST,
+                   sm = "SMD",
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on AST")
 
@@ -108,7 +108,7 @@ Influence plot displays, for each study, the value of different influence measur
 Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
 
 ```{r Influence analysis plots AST}
-plot(m.AST.inf, "baujat")
+plot(m.AST.inf, "baujat", , max.overlaps=Inf)
 plot(m.AST.inf, "influence")
 plot(m.AST.inf, "es")
 plot(m.AST.inf, "i2")
@@ -125,27 +125,31 @@ m.rma_AST <- rma(yi = m.AST$TE,
 res.gosh_AST <- gosh(m.rma_AST)
 
 plot(res.gosh_AST, alpha = 0.01)
-
-res.gosh.diag_AST <- gosh.diagnostics(res.gosh_AST, 
-                                  km.params = list(centers = 2),
-                                  db.params = list(eps = 0.08, 
-                                                   MinPts = 50))
-res.gosh.diag
-
-plot(res.gosh.diag_AST)
 ```
+
 
 ```{r Update analysis if necessary}
 # update(m.AST, exclude = c(3, 4)) %>% 
   # summary()
 ```
 
-```{r Forest plot AST}
-meta::forest(m.AST, layout = "RevMan5")
+```{r Forest plot AST, fig.height=8, fig.width=10}
+meta::forest(m.AST, 
+             layout = "RevMan5",
+             digits.mean = 1,
+             digits.sd = 1,
+             digits.tau2 = 2,                 
+             print.I2.ci = TRUE,
+             label.e = "Exercise",
+             label.c = "Usual care",
+             label.left = "Favours exercise",
+             label.right = "Favours usual care",
+             xlim = c(-3, 2),
+             addrows.below.overall = 1)
 ```
 
 ```{r Saving forest plot AST}
-pdf(file = "forestplot.pdf", width = 8, height = 7)
+pdf(file = "forestplot.pdf", width = 10, height = 8)
 
 meta::forest(m.AST, layout = "RevMan5")
 
@@ -154,34 +158,88 @@ dev.off()
 
 ### Subgroup analyses
 
+#### Analysis by disease type
+
 ```{r Subgroup analysis by disease type}
 Disease_subg <- update(m.AST, 
                     subgroup = Disease_type, 
                     tau.common = FALSE)
 ```
 
-```{r Forest plot disease type subgoup}
+```{r Forest plot disease type subgoup, fig.height=8, fig.width=10}
 forest(Disease_subg,
-            layout = "Revman")
+            layout = "Revman",
+            digits.mean = 1,
+            digits.sd = 1,
+            digits.tau2 = 2,                 
+            print.I2.ci = TRUE,
+            label.e = "Exercise",
+            label.c = "Usual care",
+            label.left = "Favours exercise",
+            label.right = "Favours usual care",
+            xlim = c(-5, 5),
+            overall.hetstat = FALSE,
+            overall = FALSE,
+            col.subgroup = "gray25",
+            addrows.below.overall = 1)
+```
+
+#### Analysis by Region
+
+```{r Subgroup analysis by Region}
+Region_subg <- update(m.AST, 
+                    subgroup = Region, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup, fig.height=8, fig.width=10}
+forest(Region_subg,
+            layout = "Revman",
+            digits.mean = 1,
+            digits.sd = 1,
+            digits.tau2 = 2,                 
+            print.I2.ci = TRUE,
+            label.e = "Exercise",
+            label.c = "Usual care",
+            label.left = "Favours exercise",
+            label.right = "Favours usual care",
+            xlim = c(-5, 5),
+            overall.hetstat = FALSE,
+            overall = FALSE,
+            col.subgroup = "gray25",
+            addrows.below.overall = 1)
 ```
 
 ### Meta-regression
 
-```{r Metaregression AST}
-m.AST.reg <- metareg(m.AST, ~Age)
-m.AST.reg
+```{r Metaregression AST disease}
+m.AST.reg_disease <- metareg(m.AST, ~Disease_type)
+m.AST.reg_disease
+```
+
+```{r Metaregression AST year}
+m.AST.reg_year <- metareg(m.AST, ~Year)
+m.AST.reg_year
 ```
 
 
-```{r Bubble plot AST}
-bubble(m.AST.reg, studlab = TRUE)
+```{r Bubble plot AST year}
+bubble(m.AST.reg_year, 
+       xlim = c(2010, 2030),
+       ylim = c(-1.5, 0.5),
+       studlab = T)
+```
+
+```{r Metaregression AST region}
+m.AST.reg_region <- metareg(m.AST, ~Region)
+m.AST.reg_region
 ```
 
 ### Publication bias
 
 ```{r Funnel plot AST}
 meta::funnel(m.AST,
-             xlim = c(-0.5, 2),
+             xlim = c(-1.5, 1.5),
              studlab = TRUE)
 
 # Add title
@@ -193,12 +251,12 @@ title("Funnel Plot (AST)")
 col.contour = c("gray75", "gray85", "gray95")
 
 # Generate funnel plot (we do not include study labels here)
-meta::funnel(m.AST, xlim = c(-0.5, 2),
+meta::funnel(m.AST, xlim = c(-1.5, 1.5),
              contour = c(0.9, 0.95, 0.99),
              col.contour = col.contour)
 
 # Add a legend
-legend(x = 1.6, y = 0.01, 
+legend(x = 0.8, y = 0.01, 
        legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
        fill = col.contour)
 
@@ -208,18 +266,16 @@ title("Contour-Enhanced Funnel Plot (AST)")
 
 ```{r Egger's regression test}
 metabias(m.AST, method.bias = "linreg")
-
-# Alternative:
-m.AST$n.e = n1; m.AST$n.c = n2
-metabias(m.AST, method.bias = "Pustejovsky")
 ```
 
 ```{r p-curve analysis}
 # Update m.gen to exclude outliers
-# m.AST_update <- update(m.AST, subset = -c(3, 16))
+# m.AST_update <- update(m.AST, subset = -c(, )) # no outliers
 
 # Run p-curve analysis
-pcurve(m.AST_update)
+# pcurve(m.AST) 
+# "Two or less significant (p<0.05) effect sizes were detected, 
+# so p-curve analysis cannot be conducted."
 ```
 
 
