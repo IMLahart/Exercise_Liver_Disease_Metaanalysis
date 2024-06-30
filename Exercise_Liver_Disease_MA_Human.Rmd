@@ -133,7 +133,7 @@ plot(res.gosh_AST, alpha = 0.01)
   # summary()
 ```
 
-```{r Forest plot AST, fig.height=8, fig.width=10}
+```{r Forest plot AST, fig.height=6, fig.width=10}
 meta::forest(m.AST, 
              layout = "RevMan5",
              digits.mean = 1,
@@ -149,9 +149,20 @@ meta::forest(m.AST,
 ```
 
 ```{r Saving forest plot AST}
-pdf(file = "forestplot.pdf", width = 10, height = 8)
+pdf(file = "AST_forestplot.pdf", width = 10, height = 6)
 
-meta::forest(m.AST, layout = "RevMan5")
+meta::forest(m.AST, 
+             layout = "RevMan5",
+             digits.mean = 1,
+             digits.sd = 1,
+             digits.tau2 = 2,                 
+             print.I2.ci = TRUE,
+             label.e = "Exercise",
+             label.c = "Usual care",
+             label.left = "Favours exercise",
+             label.right = "Favours usual care",
+             xlim = c(-3, 2),
+             addrows.below.overall = 1)
 
 dev.off()
 ```
@@ -231,6 +242,7 @@ bubble(m.AST.reg_year,
 ```
 
 ```{r Metaregression AST region}
+
 m.AST.reg_region <- metareg(m.AST, ~Region)
 m.AST.reg_region
 ```
