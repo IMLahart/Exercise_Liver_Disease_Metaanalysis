@@ -63,7 +63,7 @@ library(dmetar)
 ## Meta-analysis: AST
 
 ```{r Read in AST data, include=FALSE}
-Liver_disease_AST <- read.csv("Ex_LD_AST.csv", 
+Liver_disease_AST <- read.csv("MA_human_AST.csv", 
                       header = TRUE, sep = ",")
 ```
 
@@ -220,6 +220,337 @@ metabias(m.AST, method.bias = "Pustejovsky")
 
 # Run p-curve analysis
 pcurve(m.AST_update)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+## Meta-analysis: ALT
+
+```{r Read in ALT data, include=FALSE}
+Liver_disease_ALT <- read.csv("MA_human_ALT.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r ALT meta-analysis}
+m.ALT <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_ALT,
+                   sm = "MD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on ALT")
+
+m.ALT <- update(m.ALT, prediction = TRUE) # Adds the prediction interval
+
+summary(m.ALT) # Results of meta-analysis
+```
+
+```{r Outlier search ALT}
+find.outliers(m.ALT) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases ALT}
+m.ALT.inf <- InfluenceAnalysis(m.ALT, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots ALT}
+plot(m.ALT.inf, "baujat")
+plot(m.ALT.inf, "influence")
+plot(m.ALT.inf, "es")
+plot(m.ALT.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot ALT}
+m.rma_ALT <- rma(yi = m.ALT$TE,
+             sei = m.ALT$seTE,
+             method = m.ALT$method.tau,
+             test = "knha")
+
+res.gosh_ALT <- gosh(m.rma_ALT)
+
+plot(res.gosh_ALT, alpha = 0.01)
+
+res.gosh.diag_ALT <- gosh.diagnostics(res.gosh_ALT, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_ALT)
+```
+
+```{r Update analysis if necessary}
+# update(m.ALT, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot ALT}
+meta::forest(m.ALT, layout = "RevMan5")
+```
+
+```{r Saving forest plot ALT}
+pdf(file = "forestplot.pdf", width = 8, height = 7)
+
+meta::forest(m.ALT, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.ALT, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+### Meta-regression
+
+```{r Metaregression ALT}
+m.ALT.reg <- metareg(m.ALT, ~Age)
+m.ALT.reg
+```
+
+
+```{r Bubble plot ALT}
+bubble(m.ALT.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot ALT}
+meta::funnel(m.ALT,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (ALT)")
+```
+
+```{r Contour funnel plot ALT}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.ALT, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (ALT)")
+```
+
+```{r Egger's regression test}
+metabias(m.ALT, method.bias = "linreg")
+
+# Alternative:
+m.ALT$n.e = n1; m.ALT$n.c = n2
+metabias(m.ALT, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.ALT_update <- update(m.ALT, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.ALT_update)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Meta-analysis: ALT/AST
+
+```{r Read in ALT_AST data, include=FALSE}
+Liver_disease_ALT_AST <- read.csv("MA_human_ALT_AST.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r ALT_AST meta-analysis}
+m.ALT_AST <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_ALT_AST,
+                   sm = "MD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on ALT_AST")
+
+m.ALT_AST <- update(m.ALT_AST, prediction = TRUE) # Adds the prediction interval
+
+summary(m.ALT_AST) # Results of meta-analysis
+```
+
+```{r Outlier search ALT_AST}
+find.outliers(m.ALT_AST) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases ALT_AST}
+m.ALT_AST.inf <- InfluenceAnalysis(m.ALT_AST, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots ALT_AST}
+plot(m.ALT_AST.inf, "baujat")
+plot(m.ALT_AST.inf, "influence")
+plot(m.ALT_AST.inf, "es")
+plot(m.ALT_AST.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot ALT_AST}
+m.rma_ALT_AST <- rma(yi = m.ALT_AST$TE,
+             sei = m.ALT_AST$seTE,
+             method = m.ALT_AST$method.tau,
+             test = "knha")
+
+res.gosh_ALT_AST <- gosh(m.rma_ALT_AST)
+
+plot(res.gosh_ALT_AST, alpha = 0.01)
+
+res.gosh.diag_ALT_AST <- gosh.diagnostics(res.gosh_ALT_AST, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_ALT_AST)
+```
+
+```{r Update analysis if necessary}
+# update(m.ALT_AST, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot ALT_AST}
+meta::forest(m.ALT_AST, layout = "RevMan5")
+```
+
+```{r Saving forest plot ALT_AST}
+pdf(file = "forestplot.pdf", width = 8, height = 7)
+
+meta::forest(m.ALT_AST, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.ALT_AST, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+### Meta-regression
+
+```{r Metaregression ALT_AST}
+m.ALT_AST.reg <- metareg(m.ALT_AST, ~Age)
+m.ALT_AST.reg
+```
+
+
+```{r Bubble plot ALT_AST}
+bubble(m.ALT_AST.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot ALT_AST}
+meta::funnel(m.ALT_AST,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (ALT_AST)")
+```
+
+```{r Contour funnel plot ALT_AST}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.ALT_AST, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (ALT_AST)")
+```
+
+```{r Egger's regression test}
+metabias(m.ALT_AST, method.bias = "linreg")
+
+# Alternative:
+m.ALT_AST$n.e = n1; m.ALT_AST$n.c = n2
+metabias(m.ALT_AST, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.ALT_AST_update <- update(m.ALT_AST, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.ALT_AST_update)
 ```
 
 
