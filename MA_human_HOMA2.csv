@@ -1,0 +1,3 @@
+author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
+Hallsworth 2015,11,2.10,0.80,12,1.90,0.60,2015,UK,NAFLD
+Pugh 2014,13,1.50,0.66,8,1.60,0.96,2014,Europe,NAFLD

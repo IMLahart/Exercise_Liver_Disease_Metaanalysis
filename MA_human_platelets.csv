@@ -1,0 +1,4 @@
+author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
+Houghton 2017,12,214.00,44.00,12,258.00,75.00,2017,Europe,NASH
+Kelardeh 2020,12,256.33,35.62,11,286.81,25.70,2020,Asia,NAFLD
+Reljic 2021,29,238.00,62.00,17,229.00,76.00,2021,Europe,MetS
