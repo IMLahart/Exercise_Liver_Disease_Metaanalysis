@@ -3208,3 +3208,335 @@ pcurve(m.TNFa_update)
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
+
+## Meta-analysis: Bilirubin
+
+```{r Read in bilirubin data, include=FALSE}
+Liver_disease_bilirubin <- read.csv("MA_human_bilirubin.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r bilirubin meta-analysis}
+m.bilirubin <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_bilirubin,
+                   sm = "MD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on bilirubin")
+
+m.bilirubin <- update(m.bilirubin, prediction = TRUE) # Adds the prediction interval
+
+summary(m.bilirubin) # Results of meta-analysis
+```
+
+```{r Outlier search bilirubin}
+find.outliers(m.bilirubin) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases bilirubin}
+m.bilirubin.inf <- InfluenceAnalysis(m.bilirubin, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots bilirubin}
+plot(m.bilirubin.inf, "baujat")
+plot(m.bilirubin.inf, "influence")
+plot(m.bilirubin.inf, "es")
+plot(m.bilirubin.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot bilirubin}
+m.rma_bilirubin <- rma(yi = m.bilirubin$TE,
+             sei = m.bilirubin$seTE,
+             method = m.bilirubin$method.tau,
+             test = "knha")
+
+res.gosh_bilirubin <- gosh(m.rma_bilirubin)
+
+plot(res.gosh_bilirubin, alpha = 0.01)
+
+res.gosh.diag_bilirubin <- gosh.diagnostics(res.gosh_bilirubin, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_bilirubin)
+```
+
+```{r Update analysis if necessary}
+# update(m.bilirubin, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot bilirubin}
+meta::forest(m.bilirubin, layout = "RevMan5")
+```
+
+```{r Saving forest plot bilirubin}
+pdf(file = "bilirubin_forestplot.pdf", width = 8, height = 7)
+
+meta::forest(m.bilirubin, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.bilirubin, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+### Meta-regression
+
+```{r Metaregression bilirubin}
+m.bilirubin.reg <- metareg(m.bilirubin, ~Age)
+m.bilirubin.reg
+```
+
+
+```{r Bubble plot bilirubin}
+bubble(m.bilirubin.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot bilirubin}
+meta::funnel(m.bilirubin,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (bilirubin)")
+```
+
+```{r Contour funnel plot bilirubin}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.bilirubin, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (bilirubin)")
+```
+
+```{r Egger's regression test}
+metabias(m.bilirubin, method.bias = "linreg")
+
+# Alternative:
+m.bilirubin$n.e = n1; m.bilirubin$n.c = n2
+metabias(m.bilirubin, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.bilirubin_update <- update(m.bilirubin, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.bilirubin_update)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+## Meta-analysis: CK18
+
+```{r Read in ck18 data, include=FALSE}
+Liver_disease_ck18 <- read.csv("MA_human_ck18.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r ck18 meta-analysis}
+m.ck18 <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_ck18,
+                   sm = "MD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on ck18")
+
+m.ck18 <- update(m.ck18, prediction = TRUE) # Adds the prediction interval
+
+summary(m.ck18) # Results of meta-analysis
+```
+
+```{r Outlier search ck18}
+find.outliers(m.ck18) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases ck18}
+m.ck18.inf <- InfluenceAnalysis(m.ck18, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots ck18}
+plot(m.ck18.inf, "baujat")
+plot(m.ck18.inf, "influence")
+plot(m.ck18.inf, "es")
+plot(m.ck18.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot ck18}
+m.rma_ck18 <- rma(yi = m.ck18$TE,
+             sei = m.ck18$seTE,
+             method = m.ck18$method.tau,
+             test = "knha")
+
+res.gosh_ck18 <- gosh(m.rma_ck18)
+
+plot(res.gosh_ck18, alpha = 0.01)
+
+res.gosh.diag_ck18 <- gosh.diagnostics(res.gosh_ck18, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_ck18)
+```
+
+```{r Update analysis if necessary}
+# update(m.ck18, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot ck18}
+meta::forest(m.ck18, layout = "RevMan5")
+```
+
+```{r Saving forest plot ck18}
+pdf(file = "ck18_forestplot.pdf", width = 8, height = 7)
+
+meta::forest(m.ck18, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.ck18, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+### Meta-regression
+
+```{r Metaregression ck18}
+m.ck18.reg <- metareg(m.ck18, ~Age)
+m.ck18.reg
+```
+
+
+```{r Bubble plot ck18}
+bubble(m.ck18.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot ck18}
+meta::funnel(m.ck18,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (ck18)")
+```
+
+```{r Contour funnel plot ck18}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.ck18, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (ck18)")
+```
+
+```{r Egger's regression test}
+metabias(m.ck18, method.bias = "linreg")
+
+# Alternative:
+m.ck18$n.e = n1; m.ck18$n.c = n2
+metabias(m.ck18, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.ck18_update <- update(m.ck18, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.ck18_update)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
