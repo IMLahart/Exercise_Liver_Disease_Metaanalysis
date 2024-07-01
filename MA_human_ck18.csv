@@ -1,0 +1,4 @@
+author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
+Houghton 2017,12,551,275,12,781,1013,2017,Europe,NASH
+Keating 2023,7,169.8,153.9,5,150.4,161.8,2023,Australia,NASH
+Stine 2022,18,363.9,334.2,10,168.3,197.6,2022,North_America,NASH
