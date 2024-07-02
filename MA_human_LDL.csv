@@ -1,10 +1,10 @@
 author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
-Rezende 2016,19,3.13,1.28,21,3.07,1.05,2016,South_America,NAFLD
 Adelbassett 2020,31,2,0.12,16,2.46,0.12,2020,North_Africa,NAFLD
 Babu 2022,20,2.70,1.10,22,3.10,0.80,2022,Europe,NAFLD
-Stine 2022,18,2.81,1.04,10,2.82,0.86,2022,North_America,NASH
 Hassabi 2023,26,1.12,0.24,14,3.61,0.27,2023,Asia,NAFLD
 Pugh 2013,6,3.10,0.57,5,3.50,0.44,2013,Europe,NAFLD
 Pugh 2014,13,3.10,0.74,8,3.30,0.78,2014,Europe,NAFLD
 Reljic 2021,29,3.80,0.70,17,3.60,0.70,2021,Europe,MetS
+Rezende 2016,19,3.13,1.28,21,3.07,1.05,2016,South_America,NAFLD
+Stine 2022,18,2.81,1.04,10,2.82,0.86,2022,North_America,NASH
 Takahashi 2015,31,3.27,0.71,22,3.76,0.90,2015,Asia,NAFLD

@@ -1,4 +1,4 @@
 author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
-Stine 2022,18,47.00,3.00,10,46.00,5.00,2022,North_America,NASH
-Reljic 2021,29,42.00,2.00,17,40.00,3.00,2021,Europe,MetS
 Houghton 2017,12,45.70,3.40,12,46.70,3.30,2017,Europe,NASH
+Reljic 2021,29,42.00,2.00,17,40.00,3.00,2021,Europe,MetS
+Stine 2022,18,47.00,3.00,10,46.00,5.00,2022,North_America,NASH

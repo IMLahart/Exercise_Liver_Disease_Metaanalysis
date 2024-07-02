@@ -1,6 +1,6 @@
 author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
-Stine 2022,18,97.60,77.20,10,238.00,156.10,2022,North_America,NASH
 Hassabi 2023,26,107.63,51.45,14,118.29,50.88,2023,Asia,NAFLD
+Rezende 2016,19,163.24,191.00,21,233.91,187.00,2016,South_America,NAFLD
+Stine 2022,18,97.60,77.20,10,238.00,156.10,2022,North_America,NASH
 Takahashi 2015,31,174.80,202.05,22,164.60,110.00,2015,Asia,NAFLD
 Zelber-Sagi 2014,33,162.15,128.24,31,142.64,145.39,2014,Asia,NAFLD
-Rezende 2016,19,163.24,191.00,21,233.91,187.00,2016,South_America,NAFLD
