@@ -1,8 +1,8 @@
 author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
 Abdelbasset 2020,31,4.00,0.55,16,4.98,1.80,2020,North_Africa,NAFLD
 Hallsworth 2011,18,8.80,6.50,8,5.10,2.50,2011,UK,NAFLD
-Stine 2022,18,8.80,6.50,18,12.60,14.90,2022,North_America,NASH
 Houghton 2017,12,1.90,0.80,12,1.70,1.00,2017,Europe,NASH
 Pugh 2014,13,2.80,1.41,8,3.40,1.97,2014,Europe,NAFLD
-Zelber-Sagi 2014,33,5.65,2.41,31,5.97,2.72,2014,Asia,NAFLD
 Rezende 2016,19,3.59,3.79,21,2.74,1.18,2016,South_America,NAFLD
+Stine 2022,18,8.80,6.50,18,12.60,14.90,2022,North_America,NASH
+Zelber-Sagi 2014,33,5.65,2.41,31,5.97,2.72,2014,Asia,NAFLD

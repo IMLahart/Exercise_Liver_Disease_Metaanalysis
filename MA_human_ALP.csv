@@ -1,0 +1,7 @@
+author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
+Hallsworth 2015,12,64.00,16.00,11,62.00,18.00,2015,UK,NAFLD
+Haufe 2021,132,73.43,18.84,142,74.80,22.88,2021,Europe,MetS
+Kelardeh 2020,12,364.66,86.05,11,387.81,74.75,2020,Asia,NAFLD
+Rezende 2016,19,84.16,29.38,21,76.00,26.64,2016,South_America,NAFLD
+Stine 2022,18,89.9,33.9,10,86.3,39.9,2022,North_America,NASH
+Takahashi 2015,31,256.10,91.10,22,234.00,78.00,2015,Asia,NAFLD
