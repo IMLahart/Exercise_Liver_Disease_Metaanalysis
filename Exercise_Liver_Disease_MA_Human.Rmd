@@ -60,6 +60,8 @@ if(!require(dmetar)){install.packages('dmetar')}
 library(dmetar)
 ```
 
+
+# Mean Difference 
 ## Meta-analysis: AST
 
 ```{r Read in AST data, include=FALSE}
@@ -4369,4 +4371,505 @@ pcurve(m.platelets_update)
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
+
+## Meta-analysis: Glucose
+
+```{r Read in glucose data, include=FALSE}
+Liver_disease_glucose <- read.csv("MA_human_glucose.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r glucose meta-analysis}
+m.glucose <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_glucose,
+                   sm = "MD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on glucose")
+
+m.glucose <- update(m.glucose, prediction = TRUE) # Adds the prediction interval
+
+summary(m.glucose) # Results of meta-analysis
+```
+
+```{r Outlier search glucose}
+find.outliers(m.glucose) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases glucose}
+m.glucose.inf <- InfluenceAnalysis(m.glucose, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots glucose}
+plot(m.glucose.inf, "baujat")
+plot(m.glucose.inf, "influence")
+plot(m.glucose.inf, "es")
+plot(m.glucose.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot glucose}
+m.rma_glucose <- rma(yi = m.glucose$TE,
+             sei = m.glucose$seTE,
+             method = m.glucose$method.tau,
+             test = "knha")
+
+res.gosh_glucose <- gosh(m.rma_glucose)
+
+plot(res.gosh_glucose, alpha = 0.01)
+
+res.gosh.diag_glucose <- gosh.diagnostics(res.gosh_glucose, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_glucose)
+```
+
+```{r Update analysis if necessary}
+# update(m.glucose, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot glucose}
+meta::forest(m.glucose, layout = "RevMan5")
+```
+
+```{r Saving forest plot glucose}
+pdf(file = "glucose_forestplot.pdf", width = 10, height = 7)
+
+meta::forest(m.glucose, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.glucose, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+### Meta-regression
+
+```{r Metaregression glucose}
+m.glucose.reg <- metareg(m.glucose, ~Age)
+m.glucose.reg
+```
+
+
+```{r Bubble plot glucose}
+bubble(m.glucose.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot glucose}
+meta::funnel(m.glucose,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (glucose)")
+```
+
+```{r Contour funnel plot glucose}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.glucose, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (glucose)")
+```
+
+```{r Egger's regression test}
+metabias(m.glucose, method.bias = "linreg")
+
+# Alternative:
+m.glucose$n.e = n1; m.glucose$n.c = n2
+metabias(m.glucose, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.glucose_update <- update(m.glucose, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.glucose_update)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+# Standardised Mean Difference
+
+## Meta-analysis: Insulin 
+
+```{r Read in insulin data, include=FALSE}
+Liver_disease_insulin <- read.csv("MA_human_insulin.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r insulin meta-analysis}
+m.insulin <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_insulin,
+                   sm = "SMD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on insulin")
+
+m.insulin <- update(m.insulin, prediction = TRUE) # Adds the prediction interval
+
+summary(m.insulin) # Results of meta-analysis
+```
+
+```{r Outlier search insulin}
+find.outliers(m.insulin) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases insulin}
+m.insulin.inf <- InfluenceAnalysis(m.insulin, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots insulin}
+plot(m.insulin.inf, "baujat")
+plot(m.insulin.inf, "influence")
+plot(m.insulin.inf, "es")
+plot(m.insulin.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot insulin}
+m.rma_insulin <- rma(yi = m.insulin$TE,
+             sei = m.insulin$seTE,
+             method = m.insulin$method.tau,
+             test = "knha")
+
+res.gosh_insulin <- gosh(m.rma_insulin)
+
+plot(res.gosh_insulin, alpha = 0.01)
+
+res.gosh.diag_insulin <- gosh.diagnostics(res.gosh_insulin, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_insulin)
+```
+
+```{r Update analysis if necessary}
+# update(m.insulin, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot insulin}
+meta::forest(m.insulin, layout = "RevMan5")
+```
+
+```{r Saving forest plot insulin}
+pdf(file = "insulin_forestplot.pdf", width = 10, height = 7)
+
+meta::forest(m.insulin, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.insulin, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+### Meta-regression
+
+```{r Metaregression insulin}
+m.insulin.reg <- metareg(m.insulin, ~Age)
+m.insulin.reg
+```
+
+
+```{r Bubble plot insulin}
+bubble(m.insulin.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot insulin}
+meta::funnel(m.insulin,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (insulin)")
+```
+
+```{r Contour funnel plot insulin}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.insulin, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (insulin)")
+```
+
+```{r Egger's regression test}
+metabias(m.insulin, method.bias = "linreg")
+
+# Alternative:
+m.insulin$n.e = n1; m.insulin$n.c = n2
+metabias(m.insulin, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.insulin_update <- update(m.insulin, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.insulin_update)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+## Meta-analysis: Visceral_adiposity 
+
+```{r Read in visceral_adipose data, include=FALSE}
+Liver_disease_visceral_adipose <- read.csv("MA_human_visceral_adipose.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r visceral_adipose meta-analysis}
+m.visceral_adipose <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_visceral_adipose,
+                   sm = "SMD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on visceral_adipose")
+
+m.visceral_adipose <- update(m.visceral_adipose, prediction = TRUE) # Adds the prediction interval
+
+summary(m.visceral_adipose) # Results of meta-analysis
+```
+
+```{r Outlier search visceral_adipose}
+find.outliers(m.visceral_adipose) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases visceral_adipose}
+m.visceral_adipose.inf <- InfluenceAnalysis(m.visceral_adipose, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots visceral_adipose}
+plot(m.visceral_adipose.inf, "baujat")
+plot(m.visceral_adipose.inf, "influence")
+plot(m.visceral_adipose.inf, "es")
+plot(m.visceral_adipose.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot visceral_adipose}
+m.rma_visceral_adipose <- rma(yi = m.visceral_adipose$TE,
+             sei = m.visceral_adipose$seTE,
+             method = m.visceral_adipose$method.tau,
+             test = "knha")
+
+res.gosh_visceral_adipose <- gosh(m.rma_visceral_adipose)
+
+plot(res.gosh_visceral_adipose, alpha = 0.01)
+
+res.gosh.diag_visceral_adipose <- gosh.diagnostics(res.gosh_visceral_adipose, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_visceral_adipose)
+```
+
+```{r Update analysis if necessary}
+# update(m.visceral_adipose, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot visceral_adipose}
+meta::forest(m.visceral_adipose, layout = "RevMan5")
+```
+
+```{r Saving forest plot visceral_adipose}
+pdf(file = "visceral_adipose_forestplot.pdf", width = 10, height = 7)
+
+meta::forest(m.visceral_adipose, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.visceral_adipose, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+### Meta-regression
+
+```{r Metaregression visceral_adipose}
+m.visceral_adipose.reg <- metareg(m.visceral_adipose, ~Age)
+m.visceral_adipose.reg
+```
+
+
+```{r Bubble plot visceral_adipose}
+bubble(m.visceral_adipose.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot visceral_adipose}
+meta::funnel(m.visceral_adipose,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (visceral_adipose)")
+```
+
+```{r Contour funnel plot visceral_adipose}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.visceral_adipose, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (visceral_adipose)")
+```
+
+```{r Egger's regression test}
+metabias(m.visceral_adipose, method.bias = "linreg")
+
+# Alternative:
+m.visceral_adipose$n.e = n1; m.visceral_adipose$n.c = n2
+metabias(m.visceral_adipose, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.visceral_adipose_update <- update(m.visceral_adipose, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.visceral_adipose_update)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
