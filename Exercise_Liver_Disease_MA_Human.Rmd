@@ -82,9 +82,9 @@ m.AST <- metacont(n.e = n.e,
                    random = TRUE,
                    method.tau = "REML",
                    method.random.ci = "HK",
-                   title = "Exercise effects on ALT")
+                   title = "Exercise effects on AST")
 
-m.AST <- update(m.ALT, prediction = TRUE) # Adds the prediction interval
+m.AST <- update(m.AST, prediction = TRUE) # Adds the prediction interval
 
 summary(m.AST) # Results of meta-analysis
 ```
@@ -3625,7 +3625,7 @@ meta::forest(m.ck18, layout = "RevMan5")
 ```
 
 ```{r Saving forest plot ck18}
-pdf(file = "ck18_forestplot.pdf", width = 10, height = 7)
+pdf(file = "ck18_forestplot.pdf", width = 11, height = 7)
 
 meta::forest(m.ck18, layout = "RevMan5")
 
