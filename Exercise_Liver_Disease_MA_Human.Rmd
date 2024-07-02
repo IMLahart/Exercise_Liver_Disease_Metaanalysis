@@ -4540,8 +4540,9 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 
 
-# Standardised Mean Difference
 
+
+# Standardised Mean Difference
 ## Meta-analysis: Insulin 
 
 ```{r Read in insulin data, include=FALSE}
@@ -4868,6 +4869,338 @@ metabias(m.visceral_adipose, method.bias = "Pustejovsky")
 
 # Run p-curve analysis
 pcurve(m.visceral_adipose_update)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+## Meta-analysis: Subcutaneous_adiposity 
+
+```{r Read in subcutaneous_adipose data, include=FALSE}
+Liver_disease_subcutaneous_adipose <- read.csv("MA_human_subcutaneous_adipose.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r subcutaneous_adipose meta-analysis}
+m.subcutaneous_adipose <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_subcutaneous_adipose,
+                   sm = "SMD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on subcutaneous_adipose")
+
+m.subcutaneous_adipose <- update(m.subcutaneous_adipose, prediction = TRUE) # Adds the prediction interval
+
+summary(m.subcutaneous_adipose) # Results of meta-analysis
+```
+
+```{r Outlier search subcutaneous_adipose}
+find.outliers(m.subcutaneous_adipose) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases subcutaneous_adipose}
+m.subcutaneous_adipose.inf <- InfluenceAnalysis(m.subcutaneous_adipose, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots subcutaneous_adipose}
+plot(m.subcutaneous_adipose.inf, "baujat")
+plot(m.subcutaneous_adipose.inf, "influence")
+plot(m.subcutaneous_adipose.inf, "es")
+plot(m.subcutaneous_adipose.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot subcutaneous_adipose}
+m.rma_subcutaneous_adipose <- rma(yi = m.subcutaneous_adipose$TE,
+             sei = m.subcutaneous_adipose$seTE,
+             method = m.subcutaneous_adipose$method.tau,
+             test = "knha")
+
+res.gosh_subcutaneous_adipose <- gosh(m.rma_subcutaneous_adipose)
+
+plot(res.gosh_subcutaneous_adipose, alpha = 0.01)
+
+res.gosh.diag_subcutaneous_adipose <- gosh.diagnostics(res.gosh_subcutaneous_adipose, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_subcutaneous_adipose)
+```
+
+```{r Update analysis if necessary}
+# update(m.subcutaneous_adipose, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot subcutaneous_adipose}
+meta::forest(m.subcutaneous_adipose, layout = "RevMan5")
+```
+
+```{r Saving forest plot subcutaneous_adipose}
+pdf(file = "subcutaneous_adipose_forestplot.pdf", width = 10, height = 7)
+
+meta::forest(m.subcutaneous_adipose, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.subcutaneous_adipose, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+### Meta-regression
+
+```{r Metaregression subcutaneous_adipose}
+m.subcutaneous_adipose.reg <- metareg(m.subcutaneous_adipose, ~Age)
+m.subcutaneous_adipose.reg
+```
+
+
+```{r Bubble plot subcutaneous_adipose}
+bubble(m.subcutaneous_adipose.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot subcutaneous_adipose}
+meta::funnel(m.subcutaneous_adipose,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (subcutaneous_adipose)")
+```
+
+```{r Contour funnel plot subcutaneous_adipose}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.subcutaneous_adipose, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (subcutaneous_adipose)")
+```
+
+```{r Egger's regression test}
+metabias(m.subcutaneous_adipose, method.bias = "linreg")
+
+# Alternative:
+m.subcutaneous_adipose$n.e = n1; m.subcutaneous_adipose$n.c = n2
+metabias(m.subcutaneous_adipose, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.subcutaneous_adipose_update <- update(m.subcutaneous_adipose, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.subcutaneous_adipose_update)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+## Meta-analysis: HbA1c
+
+```{r Read in HbA1c data, include=FALSE}
+Liver_disease_HbA1c <- read.csv("MA_human_HbA1c.csv", 
+                      header = TRUE, sep = ",")
+```
+
+```{r HbA1c meta-analysis}
+m.HbA1c <- metacont(n.e = n.e,
+                   mean.e = mean.e,
+                   sd.e = sd.e,
+                   n.c = n.c,
+                   mean.c = mean.c,
+                   sd.c = sd.c,
+                   studlab = author,
+                   data = Liver_disease_HbA1c,
+                   sm = "SMD",
+                   method.smd = "Hedges",
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   method.random.ci = "HK",
+                   title = "Exercise effects on HbA1c")
+
+m.HbA1c <- update(m.HbA1c, prediction = TRUE) # Adds the prediction interval
+
+summary(m.HbA1c) # Results of meta-analysis
+```
+
+```{r Outlier search HbA1c}
+find.outliers(m.HbA1c) # searches for outlying studies in a object, removes them, and then recalculates the results.
+```
+
+Influential cases, on the other hand, are those studies which–by definition–have a large impact on the pooled effect or heterogeneity, regardless of how high or low the effect is. 
+Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
+
+```{r Influential cases HbA1c}
+m.HbA1c.inf <- InfluenceAnalysis(m.HbA1c, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+```
+
+
+Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
+
+Influence plot displays, for each study, the value of different influence measures. These measures are used to characterize which studies fit well into our meta-analysis model, and which do not. 
+
+Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
+
+```{r Influence analysis plots HbA1c}
+plot(m.HbA1c.inf, "baujat")
+plot(m.HbA1c.inf, "influence")
+plot(m.HbA1c.inf, "es")
+plot(m.HbA1c.inf, "i2")
+```
+
+Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
+
+```{r Gosh plot HbA1c}
+m.rma_HbA1c <- rma(yi = m.HbA1c$TE,
+             sei = m.HbA1c$seTE,
+             method = m.HbA1c$method.tau,
+             test = "knha")
+
+res.gosh_HbA1c <- gosh(m.rma_HbA1c)
+
+plot(res.gosh_HbA1c, alpha = 0.01)
+
+res.gosh.diag_HbA1c <- gosh.diagnostics(res.gosh_HbA1c, 
+                                  km.params = list(centers = 2),
+                                  db.params = list(eps = 0.08, 
+                                                   MinPts = 50))
+res.gosh.diag
+
+plot(res.gosh.diag_HbA1c)
+```
+
+```{r Update analysis if necessary}
+# update(m.HbA1c, exclude = c(3, 4)) %>% 
+  # summary()
+```
+
+```{r Forest plot HbA1c}
+meta::forest(m.HbA1c, layout = "RevMan5")
+```
+
+```{r Saving forest plot HbA1c}
+pdf(file = "HbA1c_forestplot.pdf", width = 10, height = 7)
+
+meta::forest(m.HbA1c, layout = "RevMan5")
+
+dev.off()
+```
+
+### Subgroup analyses
+
+```{r Subgroup analysis by disease type}
+Disease_subg <- update(m.HbA1c, 
+                    subgroup = Disease_type, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot disease type subgoup}
+forest(Disease_subg,
+            layout = "Revman")
+```
+
+### Meta-regression
+
+```{r Metaregression HbA1c}
+m.HbA1c.reg <- metareg(m.HbA1c, ~Age)
+m.HbA1c.reg
+```
+
+
+```{r Bubble plot HbA1c}
+bubble(m.HbA1c.reg, studlab = TRUE)
+```
+
+### Publication bias
+
+```{r Funnel plot HbA1c}
+meta::funnel(m.HbA1c,
+             xlim = c(-0.5, 2),
+             studlab = TRUE)
+
+# Add title
+title("Funnel Plot (HbA1c)")
+```
+
+```{r Contour funnel plot HbA1c}
+# Define fill colors for contour
+col.contour = c("gray75", "gray85", "gray95")
+
+# Generate funnel plot (we do not include study labels here)
+meta::funnel(m.HbA1c, xlim = c(-0.5, 2),
+             contour = c(0.9, 0.95, 0.99),
+             col.contour = col.contour)
+
+# Add a legend
+legend(x = 1.6, y = 0.01, 
+       legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
+       fill = col.contour)
+
+# Add a title
+title("Contour-Enhanced Funnel Plot (HbA1c)")
+```
+
+```{r Egger's regression test}
+metabias(m.HbA1c, method.bias = "linreg")
+
+# Alternative:
+m.HbA1c$n.e = n1; m.HbA1c$n.c = n2
+metabias(m.HbA1c, method.bias = "Pustejovsky")
+```
+
+```{r p-curve analysis}
+# Update m.gen to exclude outliers
+# m.HbA1c_update <- update(m.HbA1c, subset = -c(3, 16))
+
+# Run p-curve analysis
+pcurve(m.HbA1c_update)
 ```
 
 
