@@ -82,7 +82,7 @@ m.AST <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on AST")
 
@@ -147,7 +147,7 @@ meta::forest(m.AST, layout = "RevMan5")
 ```
 
 ```{r Saving forest plot AST}
-pdf(file = "AST_forestplot.pdf", width = 8, height = 7)
+pdf(file = "AST_forestplot.pdf", width = 10, height = 7)
 
 meta::forest(m.AST, layout = "RevMan5")
 
@@ -247,7 +247,7 @@ m.ALT <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on ALT")
 
@@ -412,7 +412,7 @@ m.ALT_AST <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on ALT_AST")
 
@@ -577,7 +577,7 @@ m.ALP <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on ALP")
 
@@ -742,7 +742,7 @@ m.LDL <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on LDL")
 
@@ -907,7 +907,7 @@ m.HDL <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on HDL")
 
@@ -1073,7 +1073,7 @@ m.cholesterol <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on cholesterol")
 
@@ -1239,7 +1239,7 @@ m.GGT <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on GGT")
 
@@ -1405,7 +1405,7 @@ m.albumin <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on albumin")
 
@@ -1571,7 +1571,7 @@ m.APRI <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on APRI")
 
@@ -1737,7 +1737,7 @@ m.IHL <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on IHL")
 
@@ -1903,7 +1903,7 @@ m.NFS <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on NFS")
 
@@ -2069,7 +2069,7 @@ m.serum_TG <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on serum_TG")
 
@@ -2235,7 +2235,7 @@ m.FIB4 <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on FIB4")
 
@@ -2400,7 +2400,7 @@ m.ferritin <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on ferritin")
 
@@ -2566,7 +2566,7 @@ m.FLI <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on FLI")
 
@@ -2732,7 +2732,7 @@ m.liver_fat_percentage <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on liver_fat_percentage")
 
@@ -2898,7 +2898,7 @@ m.IHTG <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on IHTG")
 
@@ -3064,7 +3064,7 @@ m.adiponectin <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on adiponectin")
 
@@ -3230,7 +3230,7 @@ m.TNFa <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on TNFa")
 
@@ -3396,7 +3396,7 @@ m.bilirubin <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on bilirubin")
 
@@ -3562,7 +3562,7 @@ m.ck18 <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on ck18")
 
@@ -3728,7 +3728,7 @@ m.HsCRP <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on HsCRP")
 
@@ -3894,7 +3894,7 @@ m.HOMA <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on HOMA")
 
@@ -4060,7 +4060,7 @@ m.HOMA2 <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on HOMA2")
 
@@ -4226,7 +4226,7 @@ m.platelets <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on platelets")
 
@@ -4392,7 +4392,7 @@ m.glucose <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on glucose")
 
@@ -4563,7 +4563,7 @@ m.insulin <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on insulin")
 
@@ -4729,7 +4729,7 @@ m.visceral_adipose <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on visceral_adipose")
 
@@ -4794,7 +4794,7 @@ meta::forest(m.visceral_adipose, layout = "RevMan5")
 ```
 
 ```{r Saving forest plot visceral_adipose}
-pdf(file = "visceral_adipose_forestplot.pdf", width = 10, height = 7)
+pdf(file = "visceral_adipose_forestplot.pdf", width = 11, height = 7)
 
 meta::forest(m.visceral_adipose, layout = "RevMan5")
 
@@ -4895,7 +4895,7 @@ m.subcutaneous_adipose <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on subcutaneous_adipose")
 
@@ -4960,7 +4960,7 @@ meta::forest(m.subcutaneous_adipose, layout = "RevMan5")
 ```
 
 ```{r Saving forest plot subcutaneous_adipose}
-pdf(file = "subcutaneous_adipose_forestplot.pdf", width = 10, height = 7)
+pdf(file = "subcutaneous_adipose_forestplot.pdf", width = 11, height = 7)
 
 meta::forest(m.subcutaneous_adipose, layout = "RevMan5")
 
@@ -5061,7 +5061,7 @@ m.HbA1c <- metacont(n.e = n.e,
                    method.smd = "Hedges",
                    fixed = FALSE,
                    random = TRUE,
-                   method.tau = "REML",
+                   method.tau = "DL",
                    method.random.ci = "HK",
                    title = "Exercise effects on HbA1c")
 
