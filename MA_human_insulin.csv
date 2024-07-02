@@ -1,0 +1,13 @@
+author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
+Babu 2022,20,17.00,1.90,22,21.00,2.30,2022,Europe,NAFLD
+Cheng 2017,22,87.00,67.66,18,100.00,61.33,2017,Western_Pacific,NAFLD
+Hallsworth 2011,11,18.64,13.25,8,18.97,9.82,2011,Europe,NAFLD
+Hallsworth 2015,11,872.00,484.40,12,669.3,429.00,2015,Europe,NAFLD
+Hassabi 2023,26,14.24,8.52,14,13.09,4.36,2023,Eastern_Mediterranean,NAFLD
+Houghton 2017,12,99.00,44.00,12,91.00,52.00,2017,Europe,NASH
+Keating 2023,7,23.80,12.60,5,22.80,9.50,2023,Western_Pacific,NASH
+Pugh 2014,13,77.00,35.58,8,78.10,45.15,2014,Europe,NAFLD
+Rezende 2016,19,22.21,14.17,21,20.00,8.98,2016,Americas,NAFLD
+Stine 2022,18,32.00,20.00,18,131.30,29.90,2022,Western_Pacific,NASH
+Takahashi 2015,31,11.30,4.60,22,11.30,5.60,2015,Western_Pacific,NAFLD
+Zelber-Sagi 2014,33,26.75,9.69,31,28.10,11.11,2014,Europe,NAFLD
