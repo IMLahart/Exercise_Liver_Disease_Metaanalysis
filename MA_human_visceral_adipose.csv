@@ -1,0 +1,9 @@
+author,n.e,mean.e,sd.e,n.c,mean.c,sd.c,Year,Region,Disease_type
+Abdelbasset 2020,31,168.29,11.12,16,177.20,12.80,2020,Eastern_Mediterranean,NAFLD
+Hallsworth 2011,11,2165.00,816.00,8,2445.00,644.00,2011,Europe,NAFLD
+Hallsworth 2015,11,159.00,62.00,12,145.00,37.00,2015,Europe,NAFLD
+Houghton 2017,12,169.00,50.00,12,187.00,53.00,2017,Europe,NASH
+Keating 2023,7,4386.50,852.00,5,5301.00,2574.80,2023,Western_Pacific,NASH
+Pugh 2014,13,5.90,1.90,8,4.40,1.08,2013,Europe,NAFLD
+Pugh 2013,6,5.40,1.95,5,4.50,1.17,2014,Europe,NAFLD
+Stine 2022,18,5.20,1.10,10,7.20,2.80,2022,Americas,NASH
