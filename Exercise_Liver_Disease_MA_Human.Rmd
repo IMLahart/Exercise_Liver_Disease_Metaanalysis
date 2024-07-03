@@ -61,7 +61,6 @@ library(dmetar)
 ```
 
 
-# Mean Difference 
 ## Meta-analysis: AST
 
 ```{r Read in AST data, include=FALSE}
@@ -91,6 +90,44 @@ m.AST <- update(m.AST, prediction = TRUE) # Adds the prediction interval
 summary(m.AST) # Results of meta-analysis
 ```
 
+### Forest plot AST
+
+```{r Forest plot AST, fig.width = 10, fig.height=7}
+meta::forest(m.AST, 
+             layout = "RevMan5",
+             digits.mean = 1,
+             digits.sd = 1,
+             digits.tau2 = 2,                 
+             print.I2.ci = TRUE,
+             label.e = "Exercise",
+             label.c = "Usual care",
+             label.left = "Favours exercise",
+             label.right = "Favours usual care",
+             xlim = c(-40, 30),
+             addrows.below.overall = 1)
+```
+
+```{r Saving forest plot AST}
+pdf(file = "AST_forestplot.pdf", width = 10, height = 7)
+
+meta::forest(m.AST, 
+             layout = "RevMan5",
+             digits.mean = 1,
+             digits.sd = 1,
+             digits.tau2 = 2,                 
+             print.I2.ci = TRUE,
+             label.e = "Exercise",
+             label.c = "Usual care",
+             label.left = "Favours exercise",
+             label.right = "Favours usual care",
+             xlim = c(-40, 30),
+             addrows.below.overall = 1)
+
+dev.off()
+```
+
+### Influence analysis AST
+
 ```{r Outlier search AST}
 find.outliers(m.AST) # searches for outlying studies in a object, removes them, and then recalculates the results.
 ```
@@ -99,9 +136,14 @@ Influential cases, on the other hand, are those studies which–by definition–
 Influence diagnostics allow us to detect the studies which influence the overall estimate of our meta-analysis the most.They let us assess if this large influence distorts our pooled effect.
 
 ```{r Influential cases AST}
-m.AST.inf <- InfluenceAnalysis(m.AST, random = TRUE) #Influence diagnostics allow us to detect the studies that distorts the pooled effect
+m.AST.inf <- metainf(m.AST, pooled = "random") # Leave one out analysis
+
+m.AST.inf
 ```
 
+```{r Forest plot leave one out analysis AST, fig.width=10, fig.height=6}
+forest(metainf(m.AST), layout = "revman5")
+```
 
 Baujat plots (Baujat et al. 2002) are diagnostic plots to detect studies which overly contribute to the heterogeneity in a meta-analysis. The plot shows the contribution of each study to the overall heterogeneity (as measured by Cochran’s Q) on the horizontal axis, and its influence on the pooled effect size on the vertical axis.
 
@@ -109,12 +151,38 @@ Influence plot displays, for each study, the value of different influence measur
 
 Leave-one-out meta-analyses plots show the overall effect and I2 heterogeneity of all meta-analyses that were conducted using the leave-one-out method. We can print two forest plots (a type of plot we will get to know better in Chapter 6.2), one sorted by the pooled effect size, and the other by the I2 value of the leave-one-out meta-analyses.
 
-```{r Influence analysis plots AST}
-plot(m.AST.inf, "baujat")
-plot(m.AST.inf, "influence")
-plot(m.AST.inf, "es")
-plot(m.AST.inf, "i2")
+```{r Create effect sizes for AST rma dataset}
+df_AST <- metafor::escalc(measure = "MD",
+                 m1i = mean.e,
+                 m2i = mean.c,
+                 sd1i = sd.e,
+                 sd2i = sd.c,
+                 n1i = n.e,
+                 n2i = n.c,
+                 data = Liver_disease_AST)
 ```
+
+```{r Influence diagnostics AST, fig.width=6, fig.height=8}
+rma.AST <- rma(yi = df_AST$yi,
+            vi = df_AST$vi,
+            method = "DL")
+
+### calculate influence diagnostics
+inf <- influence(rma.AST)
+ 
+### plot the influence diagnostics
+plot(inf)
+```
+
+Explanation: A variety of outlier and influential case diagnostics can be computed when conducting a meta-analysis (Viechtbauer & Cheung, 2010). The figure below shows a plot of the (1) externally standardized residuals, (2) DFFITS values, (3) Cook's distances, (4) covariance ratios, (5) leave-one-out estimates of the amount of heterogeneity, (6) leave-one-out values of the test statistics for heterogeneity, (7) hat values, and (8) weights. Three studies have rather large residuals and may be considered outliers. Only two of those studies actually have a strong influence on the results (as reflected, for example, in their Cook's distances). Removal of these studies would reduce the amount of heterogeneity quite a bit and increase the precision of the estimated average outcome (i.e., r-to-z transformed correlation) from the random-effects model. However, instead of just removing those studies, one should examine them in detail to determine what the reason may be for their unusual results. Outliers and influential cases can actually reveal patterns that may lead to new insights about study characteristics that could be acting as potential moderators (Light & Pillemer, 1984).
+
+Source: https://www.metafor-project.org/doku.php/plots:plot_of_influence_diagnostics
+
+
+```{r Baujat plt AST, fig.height=6, fig.width=6}
+baujat(m.AST)
+```
+
 
 Graphic Display of Heterogeneity (GOSH) plots fit the same meta-analysis model to all possible subsets of our included studies.
 
@@ -127,14 +195,6 @@ m.rma_AST <- rma(yi = m.AST$TE,
 res.gosh_AST <- gosh(m.rma_AST)
 
 plot(res.gosh_AST, alpha = 0.01)
-
-res.gosh.diag_AST <- gosh.diagnostics(res.gosh_AST, 
-                                  km.params = list(centers = 2),
-                                  db.params = list(eps = 0.08, 
-                                                   MinPts = 50))
-res.gosh.diag
-
-plot(res.gosh.diag_AST)
 ```
 
 ```{r Update analysis if necessary}
@@ -142,48 +202,75 @@ plot(res.gosh.diag_AST)
   # summary()
 ```
 
-```{r Forest plot AST}
-meta::forest(m.AST, layout = "RevMan5")
-```
+### Subgroup analyses AST
 
-```{r Saving forest plot AST}
-pdf(file = "AST_forestplot.pdf", width = 10, height = 7)
-
-meta::forest(m.AST, layout = "RevMan5")
-
-dev.off()
-```
-
-### Subgroup analyses
-
-```{r Subgroup analysis by disease type}
+```{r Subgroup analysis by disease type AST}
 Disease_subg <- update(m.AST, 
                     subgroup = Disease_type, 
                     tau.common = FALSE)
 ```
 
-```{r Forest plot disease type subgoup}
+```{r Forest plot disease type subgoup AST, fig.width=10, fig.height=9}
 forest(Disease_subg,
-            layout = "Revman")
+            layout = "Revman",
+             digits.mean = 1,
+             digits.sd = 1,
+             digits.tau2 = 2,                 
+             print.I2.ci = TRUE,
+             label.e = "Exercise",
+             label.c = "Usual care",
+             label.left = "Favours exercise",
+             label.right = "Favours usual care",
+             xlim = c(-40, 30),
+             overall.hetstat = FALSE,
+             overall = FALSE,
+             col.subgroup = "gray25",
+             addrows.below.overall = 1)
+```
+
+```{r Subgroup analysis by region}
+Region_subg <- update(m.AST, 
+                    subgroup = Region, 
+                    tau.common = FALSE)
+```
+
+```{r Forest plot region type subgoup AST, fig.height=8, fig.width=10}
+forest(Region_subg,
+            layout = "Revman",
+            digits.mean = 1,
+            digits.sd = 1,
+            digits.tau2 = 2,                 
+            print.I2.ci = TRUE,
+            label.e = "Exercise",
+            label.c = "Usual care",
+            label.left = "Favours exercise",
+            label.right = "Favours usual care",
+            xlim = c(-40, 30),
+            overall.hetstat = FALSE,
+            overall = FALSE,
+            col.subgroup = "gray25",
+            addrows.below.overall = 1)
 ```
 
 ### Meta-regression
 
-```{r Metaregression AST}
-m.AST.reg <- metareg(m.AST, ~Age)
-m.AST.reg
+```{r Metaregression AST year}
+m.AST.reg_year <- metareg(m.AST, ~Year)
+m.AST.reg_year
 ```
 
 
-```{r Bubble plot AST}
-bubble(m.AST.reg, studlab = TRUE)
+```{r Bubble plot AST, fig.height=5, fig.width=8}
+bubble(m.AST.reg_year,
+       xlim = c(2010, 2030),
+       studlab = TRUE)
 ```
 
 ### Publication bias
 
 ```{r Funnel plot AST}
 meta::funnel(m.AST,
-             xlim = c(-0.5, 2),
+             xlim = c(-25, 25),
              studlab = TRUE)
 
 # Add title
@@ -195,12 +282,13 @@ title("Funnel Plot (AST)")
 col.contour = c("gray75", "gray85", "gray95")
 
 # Generate funnel plot (we do not include study labels here)
-meta::funnel(m.AST, xlim = c(-0.5, 2),
+meta::funnel(m.AST, 
+             xlim = c(-25, 25),
              contour = c(0.9, 0.95, 0.99),
              col.contour = col.contour)
 
 # Add a legend
-legend(x = 1.6, y = 0.01, 
+legend(x = 12, y = 0.5, 
        legend = c("p < 0.1", "p < 0.05", "p < 0.01"),
        fill = col.contour)
 
@@ -212,7 +300,6 @@ title("Contour-Enhanced Funnel Plot (AST)")
 metabias(m.AST, method.bias = "linreg")
 
 # Alternative:
-m.AST$n.e = n1; m.AST$n.c = n2
 metabias(m.AST, method.bias = "Pustejovsky")
 ```
 
@@ -221,11 +308,10 @@ metabias(m.AST, method.bias = "Pustejovsky")
 # m.AST_update <- update(m.AST, subset = -c(3, 16))
 
 # Run p-curve analysis
-pcurve(m.AST_update)
+# pcurve(m.AST)
 ```
+Two or less significant (p<0.05) effect sizes were detected, so p-curve analysis cannot be conducted.
 
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 ## Meta-analysis: ALT
 
